@@ -7,10 +7,12 @@ import makeWASocket, {
 } from "@adiwajshing/baileys";
 
 import { Boom } from "@hapi/boom";
+import { SERUA_EVENT } from "./controller/event";
 import { app } from "./server/server";
 import config from "./utils/config";
 import { messageHandler } from "./controller/message-handler";
 import path from "path";
+import { sendController } from "./controller/send";
 
 const getFilePath = (file: string): string => path.resolve(process.cwd(), file);
 
@@ -26,9 +28,10 @@ const startSock = async () => {
     // logger: P({ level: "silent" }),
     printQRInTerminal: true,
     auth: state,
-    // implement to handle retries
-    // getMessage: async (key) => ({ conversation: "hello" }),
+    qrTimeout: 1000 * 60 * 4,
   });
+
+  SERUA_EVENT.on("send", (data) => sendController(sock, data));
 
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     if (!messages[0].key.fromMe) {
