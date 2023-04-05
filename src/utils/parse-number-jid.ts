@@ -3,4 +3,6 @@ const phoneToJid = (phone: string) =>
 
 const jidToPhone = (jid: string) => String(jid).replace("@s.whatsapp.net", "");
 
-export { phoneToJid, jidToPhone };
+const isGroupJid = (jid: string) => String(jid).includes("@g.us");
+
+export { phoneToJid, jidToPhone, isGroupJid };
