@@ -14,6 +14,7 @@ const config = {
     node: process.env.NODE_ENV,
     redis_host: process.env.REDIS_HOST,
     redis_port: process.env.REDIS_PORT,
+    RABBITMQ_URI: process.env.RABBITMQ_URI,
   },
   isProd: process.env.NODE_ENV === "production",
 };

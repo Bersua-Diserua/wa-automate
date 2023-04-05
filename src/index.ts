@@ -1,3 +1,4 @@
+import "./package/broker";
 // import { HandleError } from "./controller/order.controller";
 import makeWASocket, {
   DisconnectReason,
@@ -5,6 +6,7 @@ import makeWASocket, {
   useMultiFileAuthState,
 } from "@adiwajshing/baileys";
 
+import P from "pino";
 import { Boom } from "@hapi/boom";
 import Logger from "./utils/logger";
 import P from "pino";
@@ -24,7 +26,7 @@ const startSock = async () => {
   // fetch latest version of WA Web
   const { version, isLatest } = await fetchLatestBaileysVersion();
 
-  console.log(`using WA v${version.join(".")}, isLatest: ${isLatest}`);
+  // console.log(`using WA v${version.join(".")}, isLatest: ${isLatest}`);
 
   const sock = makeWASocket({
     version,
@@ -83,10 +85,12 @@ process.on("SIGINT", () => {
   //   HandleError("SIGNINT");
   process.exit(0);
 });
+
 process.on("uncaughtException", (err, origin) => {
   console.log(`uncaughtException`, JSON.stringify({ err, origin }));
   //   HandleError("uncaughtException");
 });
+
 process.on("unhandledRejection", (reason, promise) => {
   console.log("Unhandled", JSON.stringify({ reason, promise })); //not sending to telegram
   //   HandleError("unhandledRejection");
