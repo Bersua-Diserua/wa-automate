@@ -8,7 +8,8 @@
     "dev:esbuild": "tsup --watch",
     "start": "cross-env NODE_ENV=production node ./dist",
     "format": "prettier --write \"**/*.+(ts)\"",
-    "deploy": "pm2 start ./other/pm2.config.js"
+    "deploy": "pm2 start ./other/pm2.config.js",
+    "build": "tsup"
   },
   "keywords": [],
   "author": "",

@@ -4,20 +4,24 @@ import {
   handlerGetResponseByCommand,
 } from "../lib/handler-backend.lib"
 import { obtainCustomerByPhoneNumber } from "../package/customer"
-import { jidToPhone, phoneToJid } from "../utils/parse-number-jid"
+import { jidToPhone } from "../utils/parse-number-jid"
 
 import Logger from "../utils/logger"
 import { isKeyAlive } from "../packages/redis/utils"
 import { redisClient } from "../packages/redis"
 import { timeToExpire } from "./internal"
 
-type SeruaMessage = { commandCode?: number } & WAMessage
+type SeruaMessage = { commandCode?: number; customer: Customer } & WAMessage
 
 const messageHandler = async (socket: WASocket, message: WAMessage) => {
   const jid = message.key.remoteJid!
+  const phoneNumber = jidToPhone(jid)
 
   try {
-    const parsedMessage: SeruaMessage = getParseMessage(message)
+    const customer = await obtainCustomerByPhoneNumber(phoneNumber)
+
+    const parsedMessage = getParseMessage(message)
+    parsedMessage.customer = customer
 
     if (await isKeyAlive(jidToPhone(jid))) {
       console.log("alive")
@@ -46,14 +50,15 @@ const messageHandler = async (socket: WASocket, message: WAMessage) => {
   }
 }
 
-const getParseMessage = (msg: WAMessage): SeruaMessage => ({
-  ...msg,
-  commandCode:
-    Number(
-      msg.message &&
-        (msg.message.conversation?.trim() ||
-          msg.message.extendedTextMessage?.text?.trim())
-    ) ?? undefined,
-})
+const getParseMessage = (msg: WAMessage): SeruaMessage =>
+  ({
+    ...msg,
+    commandCode:
+      Number(
+        msg.message &&
+          (msg.message.conversation?.trim() ||
+            msg.message.extendedTextMessage?.text?.trim())
+      ) ?? undefined,
+  } as SeruaMessage)
 
 export { messageHandler }
