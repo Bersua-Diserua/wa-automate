@@ -3,41 +3,44 @@ import {
   handlerGetDefaultMessage,
   handlerGetResponseByCommand,
 } from "../lib/handler-backend.lib";
+import { jidToPhone, phoneToJid } from "../utils/parse-number-jid";
 
-import { jidToPhone } from "../utils/parse-number-jid";
+import Logger from "../utils/logger";
+import { isKeyAlive } from "../packages/redis/utils";
+import { redisClient } from "../packages/redis";
+import { timeToExpire } from "./internal";
 
 type SeruaMessage = { commandCode?: number } & WAMessage;
 
 const messageHandler = async (socket: WASocket, message: WAMessage) => {
   const jid = message.key.remoteJid!;
+
   try {
     const parsedMessage: SeruaMessage = getParseMessage(message);
 
-    if (!parsedMessage) {
-      await handlerGetDefaultMessage(jidToPhone(jid));
+    if (await isKeyAlive(jidToPhone(jid))) {
+      console.log("alive");
+      redisClient.set(jidToPhone(jid), "live-assist", "EX", timeToExpire);
       return;
     } else {
-      await handlerGetResponseByCommand(
-        jidToPhone(jid),
-        parsedMessage.commandCode
-      );
-      return;
+      console.log("die");
+      if (parsedMessage) {
+        await handlerGetResponseByCommand(
+          jidToPhone(jid),
+          parsedMessage.commandCode
+        );
+        return;
+      } else {
+        await handlerGetDefaultMessage(jidToPhone(jid));
+        return;
+      }
     }
   } catch (error) {
-    console.log({
-      message: `Message error with jid: ${jid}`,
-      context: message,
-    });
+    Logger.error(`Message error with jid: ${jid}`, message);
     if (error instanceof Error) {
-      console.log({
-        message: `Message handler error: ${error.name}`,
-        context: error,
-      });
+      Logger.error(`Message handler error: ${error.name}`, error);
     } else {
-      console.log({
-        message: `Message handler error`,
-        context: new Error(error),
-      });
+      Logger.error(`Message handler error`, new Error(error));
     }
   }
 };

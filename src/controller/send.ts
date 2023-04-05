@@ -1,3 +1,4 @@
+import Logger from "../utils/logger";
 import { SeruaEventMap } from "../types/event";
 import { WASocket } from "@adiwajshing/baileys";
 import { phoneToJid } from "../utils/parse-number-jid";
@@ -24,9 +25,9 @@ const sendController = async (
     }
   } catch (err) {
     if (err instanceof Error) {
-      console.log(err.message, err.stack);
+      Logger.error(err.message, err.stack);
     } else {
-      console.log("error", new Error(err));
+      Logger.error("error", new Error(err));
     }
   }
 };

@@ -6,9 +6,13 @@ import makeWASocket, {
 } from "@adiwajshing/baileys";
 
 import { Boom } from "@hapi/boom";
+import Logger from "./utils/logger";
+import P from "pino";
 import { SERUA_EVENT } from "./controller/event";
 import { app } from "./server/server";
 import config from "./utils/config";
+import { internalController } from "./controller/internal";
+import { isGroupJid } from "./utils/parse-number-jid";
 import { messageHandler } from "./controller/message-handler";
 import path from "path";
 import { sendController } from "./controller/send";
@@ -24,17 +28,22 @@ const startSock = async () => {
 
   const sock = makeWASocket({
     version,
-    // logger: P({ level: "silent" }),
+    logger: P({ level: "silent" }),
     printQRInTerminal: true,
     auth: state,
     qrTimeout: 1000 * 60 * 4,
   });
 
   SERUA_EVENT.on("send", (data) => sendController(sock, data));
+  SERUA_EVENT.on("internal", (data) => internalController(sock, data));
 
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     if (!messages[0].key.fromMe) {
-      messageHandler(sock, messages[0]);
+      if (!isGroupJid(messages[0].key.remoteJid)) {
+        messageHandler(sock, messages[0]);
+      } else {
+        // group handler; internal serua staff
+      }
     }
   });
 
@@ -46,15 +55,13 @@ const startSock = async () => {
         DisconnectReason.loggedOut
       ) {
         startSock();
-        console.log("Reconnected");
-        // Logger.activity(`Reconnected`)
+        Logger.activity(`Reconnected`);
       } else {
-        console.log("Connection closed. You are logged out.");
-        // Logger.error("Connection closed. You are logged out.", update)
+        Logger.error("Connection closed. You are logged out.", update);
       }
     }
 
-    // Logger.error(`Connection update`, update)
+    Logger.error(`Connection update`, update);
   });
 
   sock.ev.on("creds.update", saveCreds);
@@ -65,14 +72,12 @@ const startSock = async () => {
 const PORT = config.env.port || 4000;
 startSock()
   .then(() => {
-    // Logger.activity(`Bot Running`);
+    Logger.activity(`Bot Running`);
     app.listen(PORT, () => {
-      console.log(`Server starting on http://localhost:${PORT}`);
-      //   Logger.activity(`Bot started with config `, config);
+      Logger.activity(`Bot started with config `, config);
     });
   })
-  //   .catch(() => Logger.error("Bot failed to run"));
-  .catch(() => console.log("Bot failed to run"));
+  .catch(() => Logger.error("Bot failed to run"));
 
 process.on("SIGINT", () => {
   //   HandleError("SIGNINT");

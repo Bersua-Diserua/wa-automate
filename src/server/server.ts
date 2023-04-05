@@ -25,7 +25,10 @@ app.get("/", (req, res) => {
 });
 
 app.post("/general-text", async (req, res) => {
+  const wording = ["terhubung", "hubungkan"];
+
   const { phone, message } = req.body;
+
   SERUA_EVENT.emit("send", {
     type: "general-text",
     data: {
@@ -33,6 +36,22 @@ app.post("/general-text", async (req, res) => {
       message,
     },
   });
+
+  const found = String(message)
+    .toLowerCase()
+    .split(" ")
+    .some((r) => wording.indexOf(r) >= 0);
+
+  if (found) {
+    console.log({
+      found,
+      phone,
+    });
+    SERUA_EVENT.emit("internal", {
+      type: "live-assist",
+      data: { phone },
+    });
+  }
 
   res.status(200).json({
     response: "Success send attach-media",

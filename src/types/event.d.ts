@@ -5,6 +5,12 @@ type SeruaEventMap = {
   send:
     | { type: "general-text"; data: GeneralText }
     | { type: "attach-media"; data: AttachImage };
+  internal: {
+    type: "live-assist";
+    data: {
+      phone: string;
+    };
+  };
 };
 
 export interface CommonSeruaEventEmitter extends EventEmitter {

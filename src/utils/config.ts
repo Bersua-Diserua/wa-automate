@@ -12,6 +12,8 @@ const config = {
     be_server: process.env.BE_SERVER,
     port: process.env.PORT,
     node: process.env.NODE_ENV,
+    redis_host: process.env.REDIS_HOST,
+    redis_port: process.env.REDIS_PORT,
   },
   isProd: process.env.NODE_ENV === "production",
 };
