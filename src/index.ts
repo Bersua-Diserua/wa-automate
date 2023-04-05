@@ -6,6 +6,7 @@ import makeWASocket, {
   useMultiFileAuthState,
 } from "@adiwajshing/baileys";
 
+import P from "pino";
 import { Boom } from "@hapi/boom";
 import { SERUA_EVENT } from "./controller/event";
 import { app } from "./server/server";
@@ -21,11 +22,11 @@ const startSock = async () => {
   // fetch latest version of WA Web
   const { version, isLatest } = await fetchLatestBaileysVersion();
 
-  console.log(`using WA v${version.join(".")}, isLatest: ${isLatest}`);
+  // console.log(`using WA v${version.join(".")}, isLatest: ${isLatest}`);
 
   const sock = makeWASocket({
     version,
-    // logger: P({ level: "silent" }),
+    logger: P({ level: "silent" }),
     printQRInTerminal: true,
     auth: state,
     qrTimeout: 1000 * 60 * 4,
@@ -79,10 +80,12 @@ process.on("SIGINT", () => {
   //   HandleError("SIGNINT");
   process.exit(0);
 });
+
 process.on("uncaughtException", (err, origin) => {
   console.log(`uncaughtException`, JSON.stringify({ err, origin }));
   //   HandleError("uncaughtException");
 });
+
 process.on("unhandledRejection", (reason, promise) => {
   console.log("Unhandled", JSON.stringify({ reason, promise })); //not sending to telegram
   //   HandleError("unhandledRejection");
