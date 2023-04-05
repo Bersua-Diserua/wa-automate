@@ -1,3 +1,4 @@
+import "./package/broker";
 // import { HandleError } from "./controller/order.controller";
 import makeWASocket, {
   DisconnectReason,

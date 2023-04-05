@@ -12,6 +12,7 @@ const config = {
     be_server: process.env.BE_SERVER,
     port: process.env.PORT,
     node: process.env.NODE_ENV,
+    RABBITMQ_URI: process.env.RABBITMQ_URI,
   },
   isProd: process.env.NODE_ENV === "production",
 };
