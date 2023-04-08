@@ -76,10 +76,12 @@ startSock()
   .then((sock) => {
     global.WA_SOCKET = sock
     Logger.activity(`Bot Running`)
+
     connectAmq()
       .then((x) => newHandlerBroker(x))
       .then(() => console.log("Estabilished Broker"))
       .catch(console.error)
+
     app.listen(PORT, () => {
       Logger.activity(`Bot started with config `, config)
     })

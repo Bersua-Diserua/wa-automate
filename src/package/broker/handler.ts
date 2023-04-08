@@ -56,7 +56,10 @@ export async function newHandlerBroker(connection: Connection) {
         channel,
         msg,
         WA_SOCKET
-      )
+      ).catch((err) => {
+        console.error(err)
+        channel.nack(msg)
+      })
     },
     { noAck: false }
   )
