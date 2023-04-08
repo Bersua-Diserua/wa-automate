@@ -4,8 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --watch './**/*.ts' --exec 'ts-node' ./src/index.ts --trace-warnings",
-    "dev:esbuild": "tsup --watch",
+    "dev": "tsup --watch",
     "start": "cross-env NODE_ENV=production node ./dist",
     "format": "prettier --write \"**/*.+(ts)\"",
     "deploy": "pm2 start ./other/pm2.config.js",
