@@ -31,7 +31,7 @@ const startSock = async () => {
     qrTimeout: 1000 * 60 * 4,
   })
 
-  WA_SOCKET = sock
+  global.WA_SOCKET = sock
 
   SERUA_EVENT.on("send", (data) => sendController(sock, data))
   SERUA_EVENT.on("internal", (data) => internalController(sock, data))
