@@ -9,9 +9,4 @@ export async function connectAmq() {
   return amqConnection
 }
 
-connectAmq()
-  .then((x) => newHandlerBroker(x))
-  .then(() => console.log("Estabilished Broker"))
-  .catch(console.error)
-
 export { amqConnection }

@@ -1,19 +1,22 @@
 import "./polyfill"
+
 import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
   useMultiFileAuthState,
 } from "@adiwajshing/baileys"
 
-import P from "pino"
 import { Boom } from "@hapi/boom"
 import Logger from "./utils/logger"
+import P from "pino"
 import { SERUA_EVENT } from "./controller/event"
 import { app } from "./server/server"
 import config from "./utils/config"
+import { connectAmq } from "./package/broker"
 import { internalController } from "./controller/internal"
 import { isGroupJid } from "./utils/parse-number-jid"
 import { messageHandler } from "./controller/message-handler"
+import { newHandlerBroker } from "./package/broker/handler"
 import path from "path"
 import { sendController } from "./controller/send"
 
@@ -33,13 +36,13 @@ const startSock = async () => {
 
   global.WA_SOCKET = sock
 
-  SERUA_EVENT.on("send", (data) => sendController(sock, data))
-  SERUA_EVENT.on("internal", (data) => internalController(sock, data))
+  // SERUA_EVENT.on("send", (data) => sendController(sock, data))
+  // SERUA_EVENT.on("internal", (data) => internalController(sock, data))
 
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     if (!messages[0].key.fromMe) {
       if (!isGroupJid(messages[0].key.remoteJid)) {
-        messageHandler(sock, messages[0])
+        messageHandler(messages[0])
       } else {
         // group handler; internal serua staff
       }
@@ -70,8 +73,13 @@ const startSock = async () => {
 
 const PORT = config.env.port || 4000
 startSock()
-  .then(() => {
+  .then((sock) => {
+    global.WA_SOCKET = sock
     Logger.activity(`Bot Running`)
+    connectAmq()
+      .then((x) => newHandlerBroker(x))
+      .then(() => console.log("Estabilished Broker"))
+      .catch(console.error)
     app.listen(PORT, () => {
       Logger.activity(`Bot started with config `, config)
     })
