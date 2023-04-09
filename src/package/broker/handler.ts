@@ -18,6 +18,7 @@ const AVAILABLE_COMMAND = z.enum([
   "MESSAGE.TEXT",
   "MESSAGE.IMAGE",
   "MESSAGE.CONTACT",
+  "MESSAGE.GROUP",
   "MESSAGE.BULK",
   "RESERVATION.TICKET",
   "RESERVATION.SUCCESS",
@@ -112,6 +113,13 @@ export async function commandRouting(
         })
         .then(() => channel.ack(msg))
       return
+    }
+
+    if (command === "MESSAGE.GROUP") {
+      const { message } = payload
+      socket.sendMessage(groupJid, {
+        text: String(message),
+      })
     }
 
     if (command === "MESSAGE.BULK") console.log("Unreachable")
