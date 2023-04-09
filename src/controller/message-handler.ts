@@ -1,8 +1,5 @@
 import type { WAMessage, WASocket } from "@adiwajshing/baileys"
-import {
-  handlerGetDefaultMessage,
-  handlerGetResponseByCommand,
-} from "../lib/handler-backend.lib"
+import { getDefaultMessage, getResponseByCommand } from "../lib/backend.lib"
 
 import Logger from "../utils/logger"
 import { isKeyAlive } from "../packages/redis/utils"
@@ -28,13 +25,10 @@ const messageHandler = async (message: WAMessage) => {
       return
     } else {
       if (parsedMessage && !isNaN(parsedMessage.commandCode)) {
-        await handlerGetResponseByCommand(
-          jidToPhone(jid),
-          parsedMessage.commandCode
-        )
+        getResponseByCommand(jidToPhone(jid), parsedMessage.commandCode)
         return
       } else {
-        await handlerGetDefaultMessage(jidToPhone(jid))
+        await getDefaultMessage(jidToPhone(jid))
         return
       }
     }
