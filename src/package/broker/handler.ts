@@ -27,43 +27,47 @@ const AVAILABLE_COMMAND = z.enum([
 ])
 
 export async function newHandlerBroker(connection: Connection) {
-  const channel = await connection.createChannel()
-  await channel.assertQueue(KEY_QUEQUE, {
-    durable: true,
-  })
+  try {
+    const channel = await connection.createChannel()
+    await channel.assertQueue(KEY_QUEQUE, {
+      durable: true,
+    })
 
-  channel.prefetch(1)
+    channel.prefetch(1)
 
-  await channel.consume(
-    KEY_QUEQUE,
-    async function (msg) {
-      const raw = msg?.content?.toString()
-      if (!raw) {
-        channel.ack(msg)
-      }
+    await channel.consume(
+      KEY_QUEQUE,
+      async function (msg) {
+        const raw = msg?.content?.toString()
+        if (!raw) {
+          channel.ack(msg)
+        }
 
-      const parsed = JSON.parse(raw)
-      const validateCommand = AVAILABLE_COMMAND.safeParse(parsed?.command)
+        const parsed = JSON.parse(raw)
+        const validateCommand = AVAILABLE_COMMAND.safeParse(parsed?.command)
 
-      if (!validateCommand.success) {
-        console.log(`${parsed?.command} not available`)
-        channel.ack(msg)
-        return
-      }
+        if (!validateCommand.success) {
+          console.log(`${parsed?.command} not available`)
+          channel.ack(msg)
+          return
+        }
 
-      await commandRouting(
-        validateCommand.data,
-        parsed.payload,
-        channel,
-        msg,
-        WA_SOCKET
-      ).catch((err) => {
-        console.error(err)
-        channel.nack(msg)
-      })
-    },
-    { noAck: false }
-  )
+        await commandRouting(
+          validateCommand.data,
+          parsed.payload,
+          channel,
+          msg,
+          WA_SOCKET
+        ).catch((err) => {
+          console.error(err)
+          channel.nack(msg)
+        })
+      },
+      { noAck: false }
+    )
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export async function commandRouting(
@@ -86,7 +90,12 @@ export async function commandRouting(
         .some((r) => wording.indexOf(r) >= 0)
 
       if (found) {
-        redisClient.set(String(phoneNumber), "live-assist", "EX", timeToExpire)
+        await redisClient.set(
+          String(phoneNumber),
+          "live-assist",
+          "EX",
+          timeToExpire
+        )
 
         //   send to group
         await socket.sendMessage(groupJid, {
@@ -106,7 +115,7 @@ export async function commandRouting(
 
     if (command === "MESSAGE.IMAGE") {
       const { phoneNumber, message, image } = payload
-      socket
+      await socket
         .sendMessage(phoneToJid(String(phoneNumber)), {
           image: Buffer.from(String(image), "base64"),
           caption: String(message),
@@ -117,7 +126,7 @@ export async function commandRouting(
 
     if (command === "MESSAGE.GROUP") {
       const { message } = payload
-      socket.sendMessage(groupJid, {
+      await socket.sendMessage(groupJid, {
         text: String(message),
       })
     }

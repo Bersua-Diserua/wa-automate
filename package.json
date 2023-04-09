@@ -8,7 +8,8 @@
     "start": "cross-env NODE_ENV=production node ./dist",
     "format": "prettier --write \"**/*.+(ts)\"",
     "deploy": "pm2 start ./other/pm2.config.js",
-    "build": "tsup"
+    "build": "tsup",
+    "emit": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
