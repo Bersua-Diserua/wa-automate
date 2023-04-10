@@ -78,7 +78,19 @@ export async function commandRouting(
   socket: WASocket
 ) {
   try {
-    // await socket?.waitForSocketOpen()
+    function nackMsg() {
+      return channel.nack(msg)
+    }
+
+    if (!socket) return nackMsg()
+
+    // Handle socket connection
+    try {
+      await socket?.waitForSocketOpen()
+    } catch (error) {
+      console.log({ err: "socket?.waitForSocketOpen()" })
+      return nackMsg()
+    }
 
     if (command === "MESSAGE.TEXT") {
       const { phoneNumber, message } = payload
