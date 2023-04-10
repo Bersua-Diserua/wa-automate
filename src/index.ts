@@ -40,12 +40,17 @@ const startSock = async () => {
   // SERUA_EVENT.on("internal", (data) => internalController(sock, data))
 
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
-    if (!messages[0].key.fromMe) {
-      if (!isGroupJid(messages[0].key.remoteJid)) {
-        messageHandler(messages[0])
-      } else {
-        // group handler; internal serua staff
+    try {
+      const message = messages[0]
+      if (!message.key.fromMe) {
+        if (!isGroupJid(message.key.remoteJid)) {
+          await messageHandler(message)
+        } else {
+          // group handler; internal serua staff
+        }
       }
+    } catch (error) {
+      console.log(error)
     }
   })
 

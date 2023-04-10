@@ -18,11 +18,11 @@ const internalController = async (
       redisClient.set(phone, "live-assist", "EX", timeToExpire)
 
       //   send to group
-      socket.sendMessage(groupJid, {
+      await socket.sendMessage(groupJid, {
         text: "Halo ada yang butuh assist",
       })
 
-      socket.sendMessage(groupJid, {
+      await socket.sendMessage(groupJid, {
         contacts: {
           displayName: "+" + phone,
           contacts: [{ vcard: VCARD_CUSTOMER_TEMPLATE(phone) }],

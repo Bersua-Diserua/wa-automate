@@ -16,7 +16,6 @@ const messageHandler = async (message: WAMessage) => {
 
   try {
     const customer = await obtainCustomerByPhoneNumber(phoneNumber)
-
     const parsedMessage = getParseMessage(message)
     parsedMessage.customer = customer
 
@@ -25,7 +24,7 @@ const messageHandler = async (message: WAMessage) => {
       return
     } else {
       if (parsedMessage && !isNaN(parsedMessage.commandCode)) {
-        getResponseByCommand(jidToPhone(jid), parsedMessage.commandCode)
+        await getResponseByCommand(jidToPhone(jid), parsedMessage.commandCode)
         return
       } else {
         await getDefaultMessage(jidToPhone(jid))

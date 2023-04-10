@@ -78,6 +78,8 @@ export async function commandRouting(
   socket: WASocket
 ) {
   try {
+    await socket?.waitForSocketOpen()
+
     if (command === "MESSAGE.TEXT") {
       const { phoneNumber, message } = payload
       await socket.sendMessage(phoneToJid(String(phoneNumber)), {
