@@ -95,15 +95,17 @@ startSock()
 
 process.on("SIGINT", () => {
   //   HandleError("SIGNINT");
-  process.exit(0)
+  process.exit(1)
 })
 
 process.on("uncaughtException", (err, origin) => {
   console.log(`uncaughtException`, JSON.stringify({ err, origin }))
   //   HandleError("uncaughtException");
+  process.exit(1)
 })
 
 process.on("unhandledRejection", (reason, promise) => {
   console.log("Unhandled", JSON.stringify({ reason, promise })) //not sending to telegram
   //   HandleError("unhandledRejection");
+  process.exit(1)
 })

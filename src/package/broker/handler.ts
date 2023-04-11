@@ -77,11 +77,11 @@ export async function commandRouting(
   msg: ConsumeMessage,
   socket: WASocket
 ) {
-  try {
-    function nackMsg() {
-      return channel.nack(msg)
-    }
+  function nackMsg() {
+    return channel.nack(msg)
+  }
 
+  try {
     if (!socket) return nackMsg()
 
     // Handle socket connection
@@ -148,6 +148,6 @@ export async function commandRouting(
     if (command === "MESSAGE.BULK") console.log("Unreachable")
   } catch (error) {
     console.error(error)
-    channel.nack(msg)
+    nackMsg()
   }
 }
