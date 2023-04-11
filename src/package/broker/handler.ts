@@ -33,7 +33,7 @@ export async function newHandlerBroker(connection: Connection) {
       durable: true,
     })
 
-    channel.prefetch(1)
+    await channel.prefetch(1_000)
 
     await channel.consume(
       KEY_QUEQUE,
@@ -78,7 +78,8 @@ export async function commandRouting(
   socket: WASocket
 ) {
   function nackMsg() {
-    return channel.nack(msg)
+    console.log(msg)
+    return channel.nack(msg, true, false)
   }
 
   try {
@@ -123,19 +124,14 @@ export async function commandRouting(
           },
         })
       }
-      channel.ack(msg)
-      return
     }
 
     if (command === "MESSAGE.IMAGE") {
       const { phoneNumber, message, image } = payload
-      await socket
-        .sendMessage(phoneToJid(String(phoneNumber)), {
-          image: Buffer.from(String(image), "base64"),
-          caption: String(message),
-        })
-        .then(() => channel.ack(msg))
-      return
+      await socket.sendMessage(phoneToJid(String(phoneNumber)), {
+        image: Buffer.from(String(image), "base64"),
+        caption: String(message),
+      })
     }
 
     if (command === "MESSAGE.GROUP") {
@@ -146,6 +142,7 @@ export async function commandRouting(
     }
 
     if (command === "MESSAGE.BULK") console.log("Unreachable")
+    channel.ack(msg)
   } catch (error) {
     console.error(error)
     nackMsg()
