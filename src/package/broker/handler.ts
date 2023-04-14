@@ -146,7 +146,7 @@ export async function commandRouting(
     }
 
     if (command === "MESSAGE.BULK") console.log("Unreachable")
-    channel.ack(msg)
+    // channel.ack(msg)
   } catch (error) {
     console.error(error)
     nackMsg()
