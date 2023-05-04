@@ -43,7 +43,7 @@ const startSock = async () => {
     try {
       const message = messages[0]
       if (!message.key.fromMe) {
-        if (!isGroupJid(message.key.remoteJid)) {
+        if (!isGroupJid(message.key.remoteJid!)) {
           await messageHandler(message)
         } else {
           // group handler; internal serua staff

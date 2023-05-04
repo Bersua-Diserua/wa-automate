@@ -27,7 +27,7 @@ const sendController = async (
     if (err instanceof Error) {
       Logger.error(err.message, err.stack)
     } else {
-      Logger.error("error", new Error(err))
+      Logger.error("error", new Error(err as string))
     }
   }
 }

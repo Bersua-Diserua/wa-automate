@@ -6,7 +6,7 @@
     "allowJs": false,
     "checkJs": false,
     "outDir": "./dist",
-    "strict": false,
+    "strict": true,
     "noImplicitThis": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,

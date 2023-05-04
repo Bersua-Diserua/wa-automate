@@ -1,4 +1,3 @@
-import { SERUA_EVENT } from "../controller/event"
 import cors from "cors"
 import express from "express"
 import fs from "fs"
@@ -82,7 +81,7 @@ app.get("/reset_session", (req, res) => {
     fs.rmSync("session", { recursive: true, force: true })
     process.exit(0)
   } catch (error) {
-    res.status(400).json(new Error(error))
+    res.status(400).json(new Error(error as string))
   }
 })
 

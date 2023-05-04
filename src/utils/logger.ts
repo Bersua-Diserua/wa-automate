@@ -1,24 +1,24 @@
-import winston, { format, transports } from "winston";
-import config from "./config";
+import winston, { format, transports } from "winston"
+import config from "./config"
 // import { teleErrorSend, teleSend } from "./telegramHelper";
-import path from "path";
-import { inspect } from "node:util";
+import path from "path"
+import { inspect } from "node:util"
 
 /**
  * Transport logger to telegram
  */
 const teleCallback = format((info) => {
   const { level, message, ...rest } = info as {
-    level: LevelMap;
-    message: string;
-  } & { [key in any]: any };
+    level: LevelMap
+    message: string
+  } & { [key in any]: any }
 
   //   if (level == "error") teleErrorSend("", JSON.stringify(info));
   //   else if (level == "activity") teleSend(info.message, JSON.stringify(info));
   //   else console.log(`Not handler logger level :` + JSON.stringify(info));
 
-  return info;
-});
+  return info
+})
 
 /**
  * Destruct Error instance
@@ -28,10 +28,10 @@ const errorStackFormat = format((info) => {
     return Object.assign({}, info, {
       stack: info.stack,
       message: info.message,
-    });
+    })
   }
-  return info;
-});
+  return info
+})
 
 /**
  * Generate transport file config
@@ -44,13 +44,13 @@ const transportFileConfig = (
   filename: path.resolve(
     process.cwd() + "/logs/" + (filename ?? `${level}`) + ".log"
   ),
-});
+})
 
 const customLevels = {
   error: 1,
   activity: 4,
   debug: 7,
-};
+}
 
 const formatProduction = () =>
   format.combine(
@@ -63,7 +63,7 @@ const formatProduction = () =>
       ({ timestamp, level, message, ...rest }) =>
         `${timestamp} ${level}: ${message} ${inspect(rest)}`
     )
-  );
+  )
 
 const formatDevelopment = () =>
   format.combine(
@@ -74,7 +74,7 @@ const formatDevelopment = () =>
       ({ level, message, metadata }) =>
         `${level.toUpperCase()}: ${message} ` + inspect(metadata)
     )
-  );
+  )
 
 const Logger = winston.createLogger({
   levels: customLevels,
@@ -87,18 +87,19 @@ const Logger = winston.createLogger({
   exceptionHandlers: [new transports.File(transportFileConfig("error"))],
   handleRejections: true,
   rejectionHandlers: [new transports.File(transportFileConfig("error"))],
+  // @ts-expect-error
   exitOnError: (err) => err?.code !== "EPIPE",
-}) as CustLoggerProps;
+}) as CustLoggerProps
 
-Logger.add(new transports.File(transportFileConfig("activity")));
-Logger.add(new transports.File(transportFileConfig("error")));
+Logger.add(new transports.File(transportFileConfig("activity")))
+Logger.add(new transports.File(transportFileConfig("error")))
 
-type LevelMap = keyof typeof customLevels;
+type LevelMap = keyof typeof customLevels
 
 type CustomLevels = {
-  [key in keyof typeof customLevels]: winston.LeveledLogMethod;
-};
+  [key in keyof typeof customLevels]: winston.LeveledLogMethod
+}
 
 interface CustLoggerProps extends winston.Logger, CustomLevels {}
 
-export default Logger;
+export default Logger

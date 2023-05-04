@@ -1,21 +1,37 @@
-import type { WAMessage, WASocket } from "@adiwajshing/baileys"
+import type { WAMessage } from "@adiwajshing/baileys"
 import { getDefaultMessage, getResponseByCommand } from "../lib/backend.lib"
 
 import Logger from "../utils/logger"
 import { isKeyAlive } from "../packages/redis/utils"
 import { jidToPhone } from "../utils/parse-number-jid"
-import { obtainCustomerByPhoneNumber } from "../package/customer"
+import {
+  CustomerSchema,
+  obtainCustomerByPhoneNumber,
+} from "../package/customer"
 import { redisClient } from "../packages/redis"
 import { timeToExpire } from "./internal"
+import { initMessageHandler } from "../package/customer"
 
-type SeruaMessage = { commandCode?: number; customer: Customer } & WAMessage
+type SeruaMessage = {
+  commandCode?: number
+  customer: CustomerSchema
+} & WAMessage
 
-const messageHandler = async (message: WAMessage) => {
-  const jid = message.key.remoteJid!
-  const phoneNumber = jidToPhone(jid)
+const messageHandler = async (_message: WAMessage) => {
+  const jid = _message.key.remoteJid!
+  const message = await initMessageHandler(_message).catch(() => {
+    console.log(`[jid: ${jid}] - Error obtaining data`)
+    return 1
+  })
+
+  if (typeof message === "number") return
+  if ("group" in message) return
+  const phoneNumber = message.getPhoneNumber()
 
   try {
     const customer = await obtainCustomerByPhoneNumber(phoneNumber)
+    console.log({ customer })
+
     const parsedMessage = getParseMessage(message)
     parsedMessage.customer = customer
 
@@ -23,7 +39,11 @@ const messageHandler = async (message: WAMessage) => {
       redisClient.set(jidToPhone(jid), "live-assist", "EX", timeToExpire)
       return
     } else {
-      if (parsedMessage && !isNaN(parsedMessage.commandCode)) {
+      if (
+        parsedMessage &&
+        parsedMessage.commandCode &&
+        !isNaN(parsedMessage.commandCode)
+      ) {
         await getResponseByCommand(jidToPhone(jid), parsedMessage.commandCode)
         return
       } else {
@@ -36,13 +56,13 @@ const messageHandler = async (message: WAMessage) => {
     if (error instanceof Error) {
       Logger.error(`Message handler error: ${error.name}`, error)
     } else {
-      Logger.error(`Message handler error`, new Error(error))
+      Logger.error(`Message handler error`, new Error(error as string))
     }
   }
 }
 
-const getParseMessage = (msg: WAMessage): SeruaMessage =>
-  ({
+function getParseMessage(msg: WAMessage): SeruaMessage {
+  return {
     ...msg,
     commandCode:
       Number(
@@ -50,6 +70,7 @@ const getParseMessage = (msg: WAMessage): SeruaMessage =>
           (msg.message.conversation?.trim() ||
             msg.message.extendedTextMessage?.text?.trim())
       ) ?? undefined,
-  } as SeruaMessage)
+  } as SeruaMessage
+}
 
 export { messageHandler }

@@ -1,4 +1,4 @@
-import type { Connection, Channel, ConsumeMessage } from "amqplib"
+import type { Connection, Channel, ConsumeMessage, Message } from "amqplib"
 import { z } from "zod"
 import { type WASocket } from "@adiwajshing/baileys"
 import { phoneToJid } from "../../utils/parse-number-jid"
@@ -37,10 +37,12 @@ export async function newHandlerBroker(connection: Connection) {
 
     await channel.consume(
       KEY_QUEQUE,
-      async function (msg) {
+      async function (_msg) {
+        const msg = _msg as unknown as Message
         const raw = msg?.content?.toString()
         if (!raw) {
           channel.ack(msg)
+          return
         }
 
         const parsed = JSON.parse(raw)
@@ -78,7 +80,7 @@ export async function commandRouting(
   command: z.infer<typeof AVAILABLE_COMMAND>,
   payload: TObjUnknown,
   channel: Channel,
-  msg: ConsumeMessage,
+  msg: ConsumeMessage | Message,
   socket: WASocket
 ) {
   function nackMsg() {
