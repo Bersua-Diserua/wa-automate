@@ -43,6 +43,7 @@ const startSock = async () => {
     try {
       const message = messages[0]
       if (!message.key.fromMe) {
+        // we could get the whatsapp name from 'message.pushName'
         if (!isGroupJid(message.key.remoteJid!)) {
           await messageHandler(message)
         } else {

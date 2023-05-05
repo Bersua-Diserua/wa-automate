@@ -1,5 +1,6 @@
-import type { WAMessage } from "@adiwajshing/baileys"
 import { isGroupJid, jidToPhone } from "../../utils/parse-number-jid"
+
+import type { WAMessage } from "@adiwajshing/baileys"
 
 type CustomerHandler = {
   customer: {}
@@ -12,11 +13,10 @@ type GroupHandler = {
 type GeneralHandler = {
   getPhoneNumber(): string
   fromMe(): boolean
+  getNameAccount(): WAMessage["pushName"]
 }
 
-export type BSMessage = (CustomerHandler | GroupHandler) &
-  WAMessage &
-  GeneralHandler
+export type BSMessage<T> = T & WAMessage & GeneralHandler
 
 /* -------------------------------------------------------------------------- */
 /*                        Entrypoint of mesage handler                        */
@@ -30,12 +30,15 @@ export async function initMessageHandler(msg: WAMessage) {
 
 function initGeneralHandler(msg: WAMessage): GeneralHandler {
   return {
+    getNameAccount: () => msg.pushName,
     getPhoneNumber: () => jidToPhone(msg.key.remoteJid!),
     fromMe: () => msg.key.fromMe || false,
   }
 }
 
-async function initCustomerHandler(msg: WAMessage): Promise<BSMessage> {
+async function initCustomerHandler(
+  msg: WAMessage
+): Promise<BSMessage<CustomerHandler>> {
   return {
     customer: {},
     ...initGeneralHandler(msg),
@@ -43,9 +46,11 @@ async function initCustomerHandler(msg: WAMessage): Promise<BSMessage> {
   }
 }
 
-async function initGroupHandler(msg: WAMessage): Promise<BSMessage> {
+async function initGroupHandler(
+  msg: WAMessage
+): Promise<BSMessage<GroupHandler>> {
   return {
-    customer: {},
+    group: {},
     ...initGeneralHandler(msg),
     ...msg,
   }
