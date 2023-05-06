@@ -1,8 +1,8 @@
 import { redisClient } from "./connection"
 
 const isKeyAlive = async (key: string) => {
-  const key1 = await redisClient.ttl(key)
-  return key1 > 0
+  const _key = await redisClient.ttl(key)
+  return _key > 0
 }
 
 export { isKeyAlive }

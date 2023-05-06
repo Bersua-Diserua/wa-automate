@@ -111,13 +111,6 @@ export async function commandRouting(
         .some((r) => wording.indexOf(r) >= 0)
 
       if (found) {
-        await redisClient.set(
-          String(phoneNumber),
-          "live-assist",
-          "EX",
-          timeToExpire
-        )
-
         //   send to group
         await socket.sendMessage(groupJid, {
           text: "Halo ada yang butuh assist",

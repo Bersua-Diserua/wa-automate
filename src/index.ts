@@ -9,22 +9,20 @@ import makeWASocket, {
 import { Boom } from "@hapi/boom"
 import Logger from "./utils/logger"
 import P from "pino"
-import { SERUA_EVENT } from "./controller/event"
 import { app } from "./server/server"
 import config from "./utils/config"
 import { connectAmq } from "./package/broker"
-import { internalController } from "./controller/internal"
-import { isGroupJid } from "./utils/parse-number-jid"
 import { messageHandler } from "./controller/message-handler"
 import { newHandlerBroker } from "./package/broker/handler"
 import path from "path"
-import { sendController } from "./controller/send"
 
-const getFilePath = (file: string): string => path.resolve(process.cwd(), file)
+export function getFilePath(file: string): string {
+  return path.resolve(process.cwd(), file)
+}
 
-const startSock = async () => {
+async function startSock() {
   const { state, saveCreds } = await useMultiFileAuthState("session")
-  const { version, isLatest } = await fetchLatestBaileysVersion()
+  const { version } = await fetchLatestBaileysVersion()
 
   const sock = makeWASocket({
     version,
@@ -42,14 +40,15 @@ const startSock = async () => {
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     try {
       const message = messages[0]
-      if (!message.key.fromMe) {
-        // we could get the whatsapp name from 'message.pushName'
-        if (!isGroupJid(message.key.remoteJid!)) {
-          await messageHandler(message)
-        } else {
-          // group handler; internal serua staff
-        }
-      }
+      return messageHandler(message)
+      // if (!message.key.fromMe) {
+      //   // we could get the whatsapp name from 'message.pushName'
+      //   if (!isGroupJid(message.key.remoteJid!)) {
+      //     await messageHandler(message)
+      //   } else {
+      //     // group handler; internal serua staff
+      //   }
+      // }
     } catch (error) {
       console.log(error)
     }
