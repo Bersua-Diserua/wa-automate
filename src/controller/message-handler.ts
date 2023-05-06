@@ -31,7 +31,7 @@ const messageHandler = async (_message: WAMessage) => {
       //   text: JSON.stringify(message, null, 2),
       // })
 
-      return message.handleCommand()
+      return await message.handleCommand()
     }
 
     if ("customer" in message) {

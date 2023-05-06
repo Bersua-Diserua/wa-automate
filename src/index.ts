@@ -105,7 +105,7 @@ process.on("uncaughtException", (err, origin) => {
 })
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.log("Unhandled", JSON.stringify({ reason, promise })) //not sending to telegram
+  console.log("Unhandled", JSON.stringify({ reason, promise }))
   //   HandleError("unhandledRejection");
   process.exit(1)
 })

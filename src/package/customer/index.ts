@@ -17,6 +17,9 @@ export async function obtainCustomerByPhoneNumber(phoneNumber: string) {
   })
 
   const validate = customerSchema.safeParse(data.payload.customer)
-  if (!validate.success) throw new Error(validate.error.toString())
+  if (!validate.success) {
+    console.log(validate.error)
+    throw new Error(validate.error.toString())
+  }
   return validate.data
 }

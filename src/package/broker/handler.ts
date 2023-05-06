@@ -3,7 +3,6 @@ import { z } from "zod"
 import { type WASocket } from "@adiwajshing/baileys"
 import { phoneToJid } from "../../utils/parse-number-jid"
 import { VCARD_CUSTOMER_TEMPLATE } from "../../message"
-import { redisClient } from "../../packages/redis"
 
 const KEY_QUEQUE = "task_backend"
 
@@ -33,41 +32,43 @@ export async function newHandlerBroker(connection: Connection) {
       durable: true,
     })
 
-    await channel.prefetch(1_000)
+    await channel.prefetch(10_000)
 
     await channel.consume(
       KEY_QUEQUE,
       async function (_msg) {
         const msg = _msg as unknown as Message
-        const raw = msg?.content?.toString()
-        if (!raw) {
-          channel.ack(msg)
-          return
-        }
-
-        const parsed = JSON.parse(raw)
-        const validateCommand = AVAILABLE_COMMAND.safeParse(parsed?.command)
-
-        if (!validateCommand.success) {
-          console.log(`${parsed?.command} not available`)
-          channel.ack(msg)
-          return
-        }
-
-        await commandRouting(
-          validateCommand.data,
-          parsed.payload,
-          channel,
-          msg,
-          WA_SOCKET
-        )
-          .then(() => {
+        try {
+          const raw = msg?.content?.toString()
+          if (!raw) {
             channel.ack(msg)
-          })
-          .catch((err) => {
-            console.error(err)
-            channel.nack(msg)
-          })
+            return
+          }
+
+          const parsed = JSON.parse(raw)
+          const validateCommand = AVAILABLE_COMMAND.safeParse(parsed?.command)
+
+          if (!validateCommand.success) {
+            console.log(`${parsed?.command} not available`)
+            channel.ack(msg)
+            return
+          }
+
+          await commandRouting(
+            validateCommand.data,
+            parsed.payload,
+            channel,
+            msg,
+            WA_SOCKET
+          )
+            .then(() => channel.ack(msg))
+            .catch((err) => {
+              console.error(err)
+              channel.nack(msg)
+            })
+        } catch (error) {
+          console.log(error)
+        }
       },
       { noAck: false }
     )
@@ -122,6 +123,11 @@ export async function commandRouting(
             contacts: [{ vcard: VCARD_CUSTOMER_TEMPLATE(String(phoneNumber)) }],
           },
         })
+
+        await socket.chatModify(
+          { pin: true },
+          phoneToJid(phoneNumber as string)
+        )
       }
     }
 
