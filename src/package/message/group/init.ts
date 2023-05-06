@@ -62,6 +62,13 @@ export async function initGroupHandler(msg: WAMessage) {
               new Date().toISOString(),
               "America/Sitka"
             )}
+
+            ${JSON.stringify({
+              a: new Date().toDateString(),
+              b: new Date().toLocaleDateString(),
+              c: zonedTimeToUtc(new Date().toISOString(), "America/Sitka"),
+              d: zonedTimeToUtc(new Date().toISOString(), "Asia/Jakarta"),
+            })}
 `
             await sendText(parsedMsg, true)
             break
