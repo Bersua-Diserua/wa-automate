@@ -3,8 +3,9 @@ import { initGeneralHandler } from "../general-handler"
 import { z } from "zod"
 import { liveAssistApi } from "../../live-assist"
 import { phoneToJid } from "../../../utils/parse-number-jid"
+import { getRsvpManagement } from "../../api/rsvp"
 
-const COMMANDS = z.enum(["CLOSE", "COMMANDS", "TEST", "PERINTAH"])
+const COMMANDS = z.enum(["CLOSE", "COMMANDS", "TEST", "PERINTAH", "RSVP"])
 export type Command = z.infer<typeof COMMANDS>
 
 export async function initGroupHandler(msg: WAMessage) {
@@ -22,10 +23,10 @@ export async function initGroupHandler(msg: WAMessage) {
     ...msg,
     handleCommand: async function (this) {
       const command = getInternalGroupCommand(this)
-      if (!command)
-        return WA_SOCKET.sendMessage(this.jid, {
-          text: "Perintah tidak ditemukan",
-        })
+      if (!command) return
+      // return WA_SOCKET.sendMessage(this.jid, {
+      //   text: "Perintah tidak ditemukan",
+      // })
       else {
         switch (command) {
           case "TEST":
@@ -53,6 +54,10 @@ export async function initGroupHandler(msg: WAMessage) {
           case "COMMANDS":
           case "PERINTAH":
             await sendText(COMMANDS.options.join(" | "), true)
+            break
+          case "RSVP":
+            const rsvp = await getRsvpManagement(new Date().toISOString())
+            await sendText(JSON.stringify(rsvp), true)
             break
           default:
             console.error("Unreachable")

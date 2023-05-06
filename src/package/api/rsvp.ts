@@ -19,7 +19,7 @@ const schema = z.array(
       rejectedReason: z.string().nullable(),
       capacity: z.string(),
       capacityNumber: z.number(),
-      date: z.instanceof(Date),
+      date: z.string(),
       email: z.string(),
       name: z.string(),
       phoneNumber: z.string(),
