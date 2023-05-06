@@ -4,8 +4,9 @@ import { z } from "zod"
 import { liveAssistApi } from "../../live-assist"
 import { phoneToJid } from "../../../utils/parse-number-jid"
 import { getRsvpManagement } from "../../api/rsvp"
+import { zonedTimeToUtc } from "date-fns-tz"
 
-const COMMANDS = z.enum(["CLOSE", "COMMANDS", "TEST", "PERINTAH", "RSVP"])
+const COMMANDS = z.enum(["CLOSE", "COMMANDS", "TEST", "PERINTAH", "RSVP1"])
 export type Command = z.infer<typeof COMMANDS>
 
 export async function initGroupHandler(msg: WAMessage) {
@@ -55,9 +56,14 @@ export async function initGroupHandler(msg: WAMessage) {
           case "PERINTAH":
             await sendText(COMMANDS.options.join(" | "), true)
             break
-          case "RSVP":
+          case "RSVP1":
             const rsvp = await getRsvpManagement(new Date().toISOString())
-            await sendText(JSON.stringify(rsvp), true)
+            const parsedMsg = `List reservasi: ${zonedTimeToUtc(
+              new Date().toISOString(),
+              "America/Sitka"
+            )}
+`
+            await sendText(parsedMsg, true)
             break
           default:
             console.error("Unreachable")
