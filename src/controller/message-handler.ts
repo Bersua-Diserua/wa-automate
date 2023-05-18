@@ -12,7 +12,7 @@ type SeruaMessage = {
 const messageHandler = async (_message: WAMessage) => {
   const jid = _message.key.remoteJid!
   const message = await initMessageAdapter(_message).catch((e) => {
-    console.log(`[jid: ${jid}] - Error obtaining data`)
+    console.log(`[jid: ${jid}] - Error obtaining data, reason: ${e}`)
     return {
       isError: true,
       reason: e,

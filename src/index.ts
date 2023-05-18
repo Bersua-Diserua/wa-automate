@@ -1,4 +1,5 @@
 import "./polyfill"
+import "link-preview-js"
 
 import makeWASocket, {
   DisconnectReason,
@@ -15,6 +16,7 @@ import { connectAmq } from "./package/broker"
 import { messageHandler } from "./controller/message-handler"
 import { newHandlerBroker } from "./package/broker/handler"
 import path from "path"
+import { store } from "./memory-store"
 
 export function getFilePath(file: string): string {
   return path.resolve(process.cwd(), file)
@@ -33,6 +35,8 @@ async function startSock() {
   })
 
   global.WA_SOCKET = sock
+
+  store.bind(sock.ev)
 
   // SERUA_EVENT.on("send", (data) => sendController(sock, data))
   // SERUA_EVENT.on("internal", (data) => internalController(sock, data))

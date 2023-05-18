@@ -32,7 +32,7 @@ export async function newHandlerBroker(connection: Connection) {
       durable: true,
     })
 
-    await channel.prefetch(10_000)
+    await channel.prefetch(1)
 
     await channel.consume(
       KEY_QUEQUE,
@@ -40,6 +40,7 @@ export async function newHandlerBroker(connection: Connection) {
         const msg = _msg as unknown as Message
         try {
           const raw = msg?.content?.toString()
+
           if (!raw) {
             channel.ack(msg)
             return
@@ -102,6 +103,7 @@ export async function commandRouting(
 
     if (command === "MESSAGE.TEXT") {
       const { phoneNumber, message } = payload
+
       await socket.sendMessage(phoneToJid(String(phoneNumber)), {
         text: String(message),
       })
