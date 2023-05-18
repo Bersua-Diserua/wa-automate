@@ -12,8 +12,13 @@ const customerSchema = z.object({
 export type CustomerSchema = z.infer<typeof customerSchema>
 
 export async function obtainCustomerByPhoneNumber(phoneNumber: string) {
-  const { data } = await api.get("/customer/data", {
+  const { data, status } = await api.get("/customer/data", {
     params: { phoneNumber },
+  }).catch((err) => console.log({err}))
+  
+  console.log({
+    data,
+    status
   })
 
   const validate = customerSchema.safeParse(data.payload.customer)
