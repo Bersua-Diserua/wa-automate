@@ -1,10 +1,11 @@
-import type { WAMessage } from "@adiwajshing/baileys"
-import { initGeneralHandler } from "../general-handler"
-import { obtainCustomerByPhoneNumber } from "../../customer"
 import {
   getDefaultMessage,
   getResponseByCommand,
 } from "../../../lib/backend.lib"
+
+import type { WAMessage } from "@whiskeysockets/baileys"
+import { initGeneralHandler } from "../general-handler"
+import { obtainCustomerByPhoneNumber } from "../../customer"
 
 export async function initCustomerHandler(msg: WAMessage) {
   const general = await initGeneralHandler(msg)

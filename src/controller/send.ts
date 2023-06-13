@@ -1,6 +1,6 @@
 import Logger from "../utils/logger"
 import { SeruaEventMap } from "../types/event"
-import { WASocket } from "@adiwajshing/baileys"
+import { WASocket } from "@whiskeysockets/baileys"
 import { phoneToJid } from "../utils/parse-number-jid"
 
 const sendController = async (

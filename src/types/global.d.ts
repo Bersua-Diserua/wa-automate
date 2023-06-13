@@ -1,5 +1,5 @@
 export {}
-import { type WASocket } from "@adiwajshing/baileys"
+import { type WASocket } from "@whiskeysockets/baileys"
 
 declare global {
   type TResponse<TObj extends unknown = unknown> = {

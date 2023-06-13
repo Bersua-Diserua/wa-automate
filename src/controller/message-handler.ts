@@ -1,7 +1,6 @@
-import type { WAMessage } from "@adiwajshing/baileys"
-
-import Logger from "../utils/logger"
 import { CustomerSchema } from "../package/customer"
+import Logger from "../utils/logger"
+import type { WAMessage } from "@whiskeysockets/baileys"
 import { initMessageAdapter } from "../package/message"
 
 type SeruaMessage = {

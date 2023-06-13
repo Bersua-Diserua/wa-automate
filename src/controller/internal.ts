@@ -1,7 +1,7 @@
 import Logger from "../utils/logger"
 import { SeruaEventMap } from "../types/event"
 import { VCARD_CUSTOMER_TEMPLATE } from "../message"
-import { WASocket } from "@adiwajshing/baileys"
+import { WASocket } from "@whiskeysockets/baileys"
 import { redisClient } from "../packages/redis"
 
 export const timeToExpire = 60 * 1 // format in second

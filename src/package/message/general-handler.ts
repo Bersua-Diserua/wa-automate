@@ -1,4 +1,4 @@
-import type { WAMessage } from "@adiwajshing/baileys"
+import type { WAMessage } from "@whiskeysockets/baileys"
 import { getSysConfig } from "../sys-config"
 import { jidToPhone } from "../../utils/parse-number-jid"
 

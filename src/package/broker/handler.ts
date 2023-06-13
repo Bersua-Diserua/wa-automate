@@ -1,6 +1,6 @@
 import type { Connection, Channel, ConsumeMessage, Message } from "amqplib"
 import { z } from "zod"
-import { type WASocket } from "@adiwajshing/baileys"
+import { type WASocket } from "@whiskeysockets/baileys"
 import { phoneToJid } from "../../utils/parse-number-jid"
 import { VCARD_CUSTOMER_TEMPLATE } from "../../message"
 

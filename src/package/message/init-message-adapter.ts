@@ -1,8 +1,7 @@
-import type { WAMessage } from "@adiwajshing/baileys"
-
+import { GeneralHandler } from "./general-handler"
+import type { WAMessage } from "@whiskeysockets/baileys"
 import { initCustomerHandler } from "./customer"
 import { initGroupHandler } from "./group"
-import { GeneralHandler } from "./general-handler"
 import { isGroupJid } from "../../utils/parse-number-jid"
 
 export type BSMessage<T extends unknown = unknown> = T &

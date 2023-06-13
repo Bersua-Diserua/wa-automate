@@ -1,5 +1,5 @@
-import { makeInMemoryStore } from "@adiwajshing/baileys"
 import { getFilePath } from "."
+import { makeInMemoryStore } from "@whiskeysockets/baileys"
 
 const FILE_NAME = "seva_store.json"
 

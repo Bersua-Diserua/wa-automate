@@ -5,7 +5,7 @@ import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
   useMultiFileAuthState,
-} from "@adiwajshing/baileys"
+} from "@whiskeysockets/baileys"
 
 import { Boom } from "@hapi/boom"
 import Logger from "./utils/logger"
