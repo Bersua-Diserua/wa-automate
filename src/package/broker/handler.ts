@@ -148,6 +148,20 @@ export async function commandRouting(
       })
     }
 
+    if (command === "MESSAGE.CONTACT") {
+      const { phoneNumber, contact, message } = payload
+      await socket.sendMessage(phoneToJid(String(phoneNumber)), {
+        text: String(message),
+      })
+
+      await socket.sendMessage(phoneToJid(String(phoneNumber)), {
+        contacts: {
+          displayName: "+" + String(contact),
+          contacts: [{ vcard: VCARD_CUSTOMER_TEMPLATE(String(contact)) }],
+        },
+      })
+    }
+
     if (command === "MESSAGE.BULK") console.log("Unreachable")
     // channel.ack(msg)
   } catch (error) {
